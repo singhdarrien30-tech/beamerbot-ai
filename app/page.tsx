@@ -1,25 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { faultCodes } from "./data/codes";
 
 export default function Home() {
   const [code, setCode] = useState("");
   const [result, setResult] = useState<any>(null);
 
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  function decodeCode(inputCode?: string) {
-    const cleaned = (inputCode || code).toUpperCase().trim();
+  function decodeCode() {
+    const cleaned = code.toUpperCase().trim();
     const found = faultCodes[cleaned];
-
-    if (cleaned) {
-      router.replace(`/?code=${cleaned}`);
-    } else {
-      router.replace("/");
-    }
 
     if (found) {
       setResult(found);
@@ -27,20 +17,6 @@ export default function Home() {
       setResult(null);
     }
   }
-
-  useEffect(() => {
-    const codeFromUrl = searchParams.get("code");
-
-    if (codeFromUrl) {
-      setCode(codeFromUrl);
-      const found = faultCodes[codeFromUrl.toUpperCase().trim()];
-      if (found) {
-        setResult(found);
-      } else {
-        setResult(null);
-      }
-    }
-  }, [searchParams]);
 
   return (
     <main
@@ -56,7 +32,10 @@ export default function Home() {
       }}
     >
       <div style={{ width: "100%", maxWidth: "650px" }}>
-        <h1 style={{ fontSize: "36px", marginBottom: "8px" }}>BeamerBot AI</h1>
+        <h1 style={{ fontSize: "36px", marginBottom: "8px" }}>
+          BeamerBot AI
+        </h1>
+
         <p style={{ color: "#bbb", marginBottom: "24px" }}>
           BMW Fault Code Decoder
         </p>
@@ -78,7 +57,7 @@ export default function Home() {
           />
 
           <button
-            onClick={() => decodeCode()}
+            onClick={decodeCode}
             style={{
               padding: "12px 18px",
               background: "#22c55e",
@@ -103,7 +82,9 @@ export default function Home() {
               border: "1px solid #333",
             }}
           >
-            <h2 style={{ color: "#22c55e", marginTop: 0 }}>{result.code}</h2>
+            <h2 style={{ color: "#22c55e", marginTop: 0 }}>
+              {result.code}
+            </h2>
 
             <p
               style={{
@@ -151,6 +132,18 @@ export default function Home() {
             </p>
           </div>
         )}
+
+        {/* FOOTER */}
+        <p
+          style={{
+            marginTop: "40px",
+            color: "#666",
+            fontSize: "14px",
+            textAlign: "center",
+          }}
+        >
+          Built by Darrien Singh
+        </p>
       </div>
     </main>
   );
