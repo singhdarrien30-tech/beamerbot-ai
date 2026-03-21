@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { faultCodes } from "./data/codes";
 import { bmwVehicles } from "./data/vehicles";
+import { bmwYears } from "./data/years";
 
 export default function Home() {
   const [selectedYear, setSelectedYear] = useState("");
@@ -12,7 +13,7 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [result, setResult] = useState<any>(null);
 
-  const years = Object.keys(bmwVehicles);
+  const years = bmwYears;
 
   const models = useMemo(() => {
     if (!selectedYear) return [];
@@ -108,17 +109,19 @@ export default function Home() {
           <select
             value={selectedModel}
             onChange={(e) => handleModelChange(e.target.value)}
-            disabled={!selectedYear}
+            disabled={!selectedYear || models.length === 0}
             style={{
               padding: "12px",
               background: "#111",
               color: "white",
               border: "1px solid #333",
               borderRadius: "10px",
-              opacity: selectedYear ? 1 : 0.6,
+              opacity: selectedYear && models.length > 0 ? 1 : 0.6,
             }}
           >
-            <option value="">Select Model</option>
+            <option value="">
+              {selectedYear && models.length === 0 ? "No models added yet" : "Select Model"}
+            </option>
             {models.map((model) => (
               <option key={model} value={model}>
                 {model}
@@ -234,6 +237,7 @@ export default function Home() {
             <p style={{ fontWeight: "bold", fontSize: "22px", marginBottom: "10px" }}>
               {result.title}
             </p>
+
             <p>
               Severity:{" "}
               <span
