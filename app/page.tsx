@@ -2,8 +2,68 @@
 
 import { useMemo, useState } from "react";
 import { faultCodes } from "./data/codes";
-import { bmwVehicles } from "./data/vehicles";
+import { vehicleData as bmwVehicles } from "./data/vehicles";
 import { bmwYears } from "./data/years";
+
+type FaultCodeResult = {
+  code: string;
+  title: string;
+  severity: "Low" | "Medium" | "High";
+  causes: string[];
+  fixes: string[];
+  estimatedRepairCost: string;
+};
+
+type ModelEntry = {
+  engines?: string[];
+  drivetrains?: string[];
+};
+
+type YearWithModelsArray = {
+  models?: string[];
+};
+
+type YearWithModelMap = Record<string, ModelEntry>;
+
+type YearData = YearWithModelsArray | YearWithModelMap;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasModelsArray(yearData: YearData): yearData is YearWithModelsArray {
+  return "models" in yearData && Array.isArray(yearData.models);
+}
+
+function getYearData(year: string): YearData | undefined {
+  return (bmwVehicles as Record<string, YearData | undefined>)[year];
+}
+
+function getModelsForYear(year: string): string[] {
+  if (!year) return [];
+
+  const yearData = getYearData(year);
+  if (!yearData || !isRecord(yearData)) return [];
+
+  if (hasModelsArray(yearData)) {
+    return yearData.models ?? [];
+  }
+
+  return Object.keys(yearData);
+}
+
+function getModelData(year: string, model: string): ModelEntry | undefined {
+  if (!year || !model) return undefined;
+
+  const yearData = getYearData(year);
+  if (!yearData || !isRecord(yearData)) return undefined;
+
+  if (hasModelsArray(yearData)) {
+    return undefined;
+  }
+
+  return yearData[model];
+}
 
 export default function Home() {
   const [selectedYear, setSelectedYear] = useState("");
@@ -11,30 +71,22 @@ export default function Home() {
   const [selectedEngine, setSelectedEngine] = useState("");
   const [selectedDrivetrain, setSelectedDrivetrain] = useState("");
   const [code, setCode] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<FaultCodeResult | null>(null);
 
   const years = bmwYears;
 
   const models = useMemo(() => {
-    if (!selectedYear) return [];
-    const yearData = bmwVehicles[selectedYear];
-    return yearData ? Object.keys(yearData) : [];
+    return getModelsForYear(selectedYear);
   }, [selectedYear]);
 
   const engines = useMemo(() => {
-    if (!selectedYear || !selectedModel) return [];
-    const yearData = bmwVehicles[selectedYear];
-    if (!yearData) return [];
-    const modelData = yearData[selectedModel];
-    return modelData ? modelData.engines : [];
+    const modelData = getModelData(selectedYear, selectedModel);
+    return modelData?.engines ?? [];
   }, [selectedYear, selectedModel]);
 
   const drivetrains = useMemo(() => {
-    if (!selectedYear || !selectedModel) return [];
-    const yearData = bmwVehicles[selectedYear];
-    if (!yearData) return [];
-    const modelData = yearData[selectedModel];
-    return modelData ? modelData.drivetrains : [];
+    const modelData = getModelData(selectedYear, selectedModel);
+    return modelData?.drivetrains ?? [];
   }, [selectedYear, selectedModel]);
 
   const showDrivetrainDropdown = drivetrains.length > 0;
@@ -56,7 +108,7 @@ export default function Home() {
 
   function decodeCode() {
     const cleaned = code.toUpperCase().trim();
-    const found = faultCodes[cleaned];
+    const found = faultCodes[cleaned] as FaultCodeResult | undefined;
     setResult(found || null);
   }
 
@@ -120,7 +172,9 @@ export default function Home() {
             }}
           >
             <option value="">
-              {selectedYear && models.length === 0 ? "No models added yet" : "Select Model"}
+              {selectedYear && models.length === 0
+                ? "No models added yet"
+                : "Select Model"}
             </option>
             {models.map((model) => (
               <option key={model} value={model}>
@@ -132,17 +186,21 @@ export default function Home() {
           <select
             value={selectedEngine}
             onChange={(e) => setSelectedEngine(e.target.value)}
-            disabled={!selectedModel}
+            disabled={!selectedModel || engines.length === 0}
             style={{
               padding: "12px",
               background: "#111",
               color: "white",
               border: "1px solid #333",
               borderRadius: "10px",
-              opacity: selectedModel ? 1 : 0.6,
+              opacity: selectedModel && engines.length > 0 ? 1 : 0.6,
             }}
           >
-            <option value="">Select Engine</option>
+            <option value="">
+              {selectedModel && engines.length === 0
+                ? "No engines added yet"
+                : "Select Engine"}
+            </option>
             {engines.map((engine) => (
               <option key={engine} value={engine}>
                 {engine}
@@ -257,15 +315,15 @@ export default function Home() {
 
             <h3 style={{ marginTop: "20px" }}>Causes</h3>
             <ul style={{ paddingLeft: "20px", lineHeight: 1.8 }}>
-              {result.causes.map((c: string, i: number) => (
-                <li key={i}>{c}</li>
+              {result.causes.map((cause, i) => (
+                <li key={i}>{cause}</li>
               ))}
             </ul>
 
             <h3 style={{ marginTop: "20px" }}>Fixes</h3>
             <ul style={{ paddingLeft: "20px", lineHeight: 1.8 }}>
-              {result.fixes.map((f: string, i: number) => (
-                <li key={i}>{f}</li>
+              {result.fixes.map((fix, i) => (
+                <li key={i}>{fix}</li>
               ))}
             </ul>
 
