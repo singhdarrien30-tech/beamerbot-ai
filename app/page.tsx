@@ -12,26 +12,29 @@ type FaultCodeResult = {
   causes: string[];
   fixes: string[];
   estimatedRepairCost: string;
+  meaning?: string;
+  symptoms?: string[];
+  bmwInsight?: string;
 };
 
-type ModelEntry = {
+type TrimEntry = {
   engines?: string[];
   drivetrains?: string[];
 };
 
-type YearWithModelsArray = {
+type YearWithLegacyModels = {
   models?: string[];
 };
 
-type YearWithModelMap = Record<string, ModelEntry>;
+type YearWithTrimMap = Record<string, TrimEntry>;
 
-type YearData = YearWithModelsArray | YearWithModelMap;
+type YearData = YearWithLegacyModels | YearWithTrimMap;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function hasModelsArray(yearData: YearData): yearData is YearWithModelsArray {
+function hasLegacyModelsArray(yearData: YearData): yearData is YearWithLegacyModels {
   return "models" in yearData && Array.isArray(yearData.models);
 }
 
@@ -39,70 +42,60 @@ function getYearData(year: string): YearData | undefined {
   return (bmwVehicles as Record<string, YearData | undefined>)[year];
 }
 
-function getModelsForYear(year: string): string[] {
+function getTrimsForYear(year: string): string[] {
   if (!year) return [];
 
   const yearData = getYearData(year);
   if (!yearData || !isRecord(yearData)) return [];
 
-  if (hasModelsArray(yearData)) {
+  if (hasLegacyModelsArray(yearData)) {
     return yearData.models ?? [];
   }
 
   return Object.keys(yearData);
 }
 
-function getModelData(year: string, model: string): ModelEntry | undefined {
-  if (!year || !model) return undefined;
+function getTrimData(year: string, trim: string): TrimEntry | undefined {
+  if (!year || !trim) return undefined;
 
   const yearData = getYearData(year);
   if (!yearData || !isRecord(yearData)) return undefined;
 
-  if (hasModelsArray(yearData)) {
+  if (hasLegacyModelsArray(yearData)) {
     return undefined;
   }
 
-  return yearData[model];
+  return yearData[trim];
 }
 
 export default function Home() {
   const [selectedYear, setSelectedYear] = useState("");
-  const [selectedModel, setSelectedModel] = useState("");
+  const [selectedTrim, setSelectedTrim] = useState("");
   const [selectedEngine, setSelectedEngine] = useState("");
-  const [selectedDrivetrain, setSelectedDrivetrain] = useState("");
   const [code, setCode] = useState("");
   const [result, setResult] = useState<FaultCodeResult | null>(null);
 
   const years = bmwYears;
 
-  const models = useMemo(() => {
-    return getModelsForYear(selectedYear);
+  const trims = useMemo(() => {
+    return getTrimsForYear(selectedYear);
   }, [selectedYear]);
 
   const engines = useMemo(() => {
-    const modelData = getModelData(selectedYear, selectedModel);
-    return modelData?.engines ?? [];
-  }, [selectedYear, selectedModel]);
-
-  const drivetrains = useMemo(() => {
-    const modelData = getModelData(selectedYear, selectedModel);
-    return modelData?.drivetrains ?? [];
-  }, [selectedYear, selectedModel]);
-
-  const showDrivetrainDropdown = drivetrains.length > 0;
+    const trimData = getTrimData(selectedYear, selectedTrim);
+    return trimData?.engines ?? [];
+  }, [selectedYear, selectedTrim]);
 
   function handleYearChange(value: string) {
     setSelectedYear(value);
-    setSelectedModel("");
+    setSelectedTrim("");
     setSelectedEngine("");
-    setSelectedDrivetrain("");
     setResult(null);
   }
 
-  function handleModelChange(value: string) {
-    setSelectedModel(value);
+  function handleTrimChange(value: string) {
+    setSelectedTrim(value);
     setSelectedEngine("");
-    setSelectedDrivetrain("");
     setResult(null);
   }
 
@@ -159,26 +152,26 @@ export default function Home() {
           </select>
 
           <select
-            value={selectedModel}
-            onChange={(e) => handleModelChange(e.target.value)}
-            disabled={!selectedYear || models.length === 0}
+            value={selectedTrim}
+            onChange={(e) => handleTrimChange(e.target.value)}
+            disabled={!selectedYear || trims.length === 0}
             style={{
               padding: "12px",
               background: "#111",
               color: "white",
               border: "1px solid #333",
               borderRadius: "10px",
-              opacity: selectedYear && models.length > 0 ? 1 : 0.6,
+              opacity: selectedYear && trims.length > 0 ? 1 : 0.6,
             }}
           >
             <option value="">
-              {selectedYear && models.length === 0
-                ? "No models added yet"
-                : "Select Model"}
+              {selectedYear && trims.length === 0
+                ? "No trims added yet"
+                : "Select Trim"}
             </option>
-            {models.map((model) => (
-              <option key={model} value={model}>
-                {model}
+            {trims.map((trim) => (
+              <option key={trim} value={trim}>
+                {trim}
               </option>
             ))}
           </select>
@@ -186,18 +179,18 @@ export default function Home() {
           <select
             value={selectedEngine}
             onChange={(e) => setSelectedEngine(e.target.value)}
-            disabled={!selectedModel || engines.length === 0}
+            disabled={!selectedTrim || engines.length === 0}
             style={{
               padding: "12px",
               background: "#111",
               color: "white",
               border: "1px solid #333",
               borderRadius: "10px",
-              opacity: selectedModel && engines.length > 0 ? 1 : 0.6,
+              opacity: selectedTrim && engines.length > 0 ? 1 : 0.6,
             }}
           >
             <option value="">
-              {selectedModel && engines.length === 0
+              {selectedTrim && engines.length === 0
                 ? "No engines added yet"
                 : "Select Engine"}
             </option>
@@ -208,55 +201,18 @@ export default function Home() {
             ))}
           </select>
 
-          {showDrivetrainDropdown ? (
-            <select
-              value={selectedDrivetrain}
-              onChange={(e) => setSelectedDrivetrain(e.target.value)}
-              style={{
-                padding: "12px",
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: "10px",
-              }}
-            >
-              <option value="">Select Drivetrain</option>
-              {drivetrains.map((drivetrain) => (
-                <option key={drivetrain} value={drivetrain}>
-                  {drivetrain}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              placeholder="Enter BMW code (ex: P0171)"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              style={{
-                padding: "12px",
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: "10px",
-              }}
-            />
-          )}
-
-          {showDrivetrainDropdown && (
-            <input
-              placeholder="Enter BMW code (ex: P0171)"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              style={{
-                padding: "12px",
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: "10px",
-                gridColumn: "1 / -1",
-              }}
-            />
-          )}
+          <input
+            placeholder="Enter BMW code (ex: P0171)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            style={{
+              padding: "12px",
+              background: "#111",
+              color: "white",
+              border: "1px solid #333",
+              borderRadius: "10px",
+            }}
+          />
         </div>
 
         <button
@@ -287,14 +243,20 @@ export default function Home() {
           >
             <div style={{ marginBottom: "14px", color: "#aaa", fontSize: "14px" }}>
               <strong>Selected BMW:</strong>{" "}
-              {selectedYear || "—"} / {selectedModel || "—"} / {selectedEngine || "—"}
-              {showDrivetrainDropdown ? ` / ${selectedDrivetrain || "—"}` : ""}
+              {selectedYear || "—"} / {selectedTrim || "—"} / {selectedEngine || "—"}
             </div>
 
             <h2 style={{ color: "#22c55e", marginTop: 0 }}>{result.code}</h2>
             <p style={{ fontWeight: "bold", fontSize: "22px", marginBottom: "10px" }}>
               {result.title}
             </p>
+
+            {result.meaning && (
+              <>
+                <h3 style={{ marginTop: "20px" }}>Meaning</h3>
+                <p style={{ lineHeight: 1.8 }}>{result.meaning}</p>
+              </>
+            )}
 
             <p>
               Severity:{" "}
@@ -320,12 +282,30 @@ export default function Home() {
               ))}
             </ul>
 
+            {result.symptoms && result.symptoms.length > 0 && (
+              <>
+                <h3 style={{ marginTop: "20px" }}>Symptoms</h3>
+                <ul style={{ paddingLeft: "20px", lineHeight: 1.8 }}>
+                  {result.symptoms.map((symptom, i) => (
+                    <li key={i}>{symptom}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+
             <h3 style={{ marginTop: "20px" }}>Fixes</h3>
             <ul style={{ paddingLeft: "20px", lineHeight: 1.8 }}>
               {result.fixes.map((fix, i) => (
                 <li key={i}>{fix}</li>
               ))}
             </ul>
+
+            {result.bmwInsight && (
+              <>
+                <h3 style={{ marginTop: "20px" }}>BMW Insight</h3>
+                <p style={{ lineHeight: 1.8 }}>{result.bmwInsight}</p>
+              </>
+            )}
 
             <p style={{ marginTop: "18px", fontWeight: "bold" }}>
               Estimated Cost: {result.estimatedRepairCost}
