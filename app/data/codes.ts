@@ -275,4 +275,170 @@ export const faultCodes: Record<string, FaultCodeData> = {
     bmwInsight:
       "This code is strongly associated with HPFP failures on N54 engines—one of BMW’s most well-known issues.",
   },
-};
+  P0174: {
+    code: "P0174",
+    title: "System Too Lean (Bank 2)",
+    meaning:
+      "The engine is running with too much air and not enough fuel on Bank 2. On BMW inline-six engines, this is commonly caused by vacuum leaks, intake leaks, or unmetered air entering the engine.",
+    severity: "Medium",
+    causes: [
+      "Vacuum leak on intake system",
+      "Cracked intake boot or intake hose",
+      "Failing or dirty MAF sensor",
+      "Leaking PCV/CCV system",
+      "Weak fuel pump or restricted fuel filter",
+      "Exhaust leak affecting O2 sensor readings",
+    ],
+    symptoms: [
+      "Rough idle",
+      "Hesitation when accelerating",
+      "Check engine light",
+      "Poor fuel economy",
+      "Possible stalling at idle",
+    ],
+    fixes: [
+      "Smoke test the intake system for vacuum leaks",
+      "Inspect intake boots and hoses for cracks",
+      "Clean or replace the MAF sensor",
+      "Check fuel pressure",
+      "Inspect PCV/CCV system",
+      "Check oxygen sensor data before replacing sensors",
+    ],
+    estimatedRepairCost: "$100 - $900",
+    bmwInsight:
+      "If P0171 and P0174 appear together on a BMW, the most likely cause is a vacuum leak or unmetered air issue, not two separate oxygen sensor failures.",
+  },  P0303: {
+    code: "P0303",
+    title: "Cylinder 3 Misfire Detected",
+    meaning:
+      "Cylinder 3 is not firing correctly. On BMW engines, this is usually caused by a bad ignition coil, worn spark plug, injector issue, vacuum leak, or carbon buildup.",
+    severity: "High",
+    causes: [
+      "Faulty ignition coil on cylinder 3",
+      "Worn or fouled spark plug",
+      "Fuel injector problem",
+      "Vacuum leak affecting air/fuel mixture",
+      "Carbon buildup on intake valves",
+      "Low compression in cylinder 3",
+    ],
+    symptoms: [
+      "Rough idle",
+      "Engine shaking",
+      "Loss of power",
+      "Check engine light",
+      "Possible flashing check engine light",
+      "Poor acceleration",
+    ],
+    fixes: [
+      "Swap cylinder 3 ignition coil with another cylinder to see if the misfire follows",
+      "Replace spark plug on cylinder 3",
+      "Inspect fuel injector operation",
+      "Check for vacuum leaks",
+      "Perform compression test if misfire stays on cylinder 3",
+      "Consider walnut blasting on direct-injection BMW engines",
+    ],
+    estimatedRepairCost: "$150 - $1000",
+    bmwInsight:
+      "On BMWs, always start by swapping the ignition coil to another cylinder. If the misfire moves, the coil is the problem.",
+  },
+
+  P0304: {
+    code: "P0304",
+    title: "Cylinder 4 Misfire Detected",
+    meaning:
+      "Cylinder 4 is misfiring, meaning combustion is not happening properly in that cylinder. This can be caused by ignition, fuel delivery, air leaks, or mechanical issues.",
+    severity: "High",
+    causes: [
+      "Bad ignition coil on cylinder 4",
+      "Worn spark plug",
+      "Fuel injector malfunction",
+      "Vacuum leak",
+      "Carbon buildup",
+      "Low compression",
+    ],
+    symptoms: [
+      "Rough idle",
+      "Engine vibration",
+      "Reduced power",
+      "Check engine light",
+      "Possible limp mode",
+    ],
+    fixes: [
+      "Swap ignition coil from cylinder 4 to another cylinder",
+      "Replace the spark plug",
+      "Check injector function",
+      "Inspect for vacuum or intake leaks",
+      "Run a compression test if ignition and fuel parts check out",
+    ],
+    estimatedRepairCost: "$150 - $1000",
+    bmwInsight:
+      "Cylinder-specific misfires on BMWs are commonly caused by coils and plugs, especially on N54, N55, B58, and older M54 engines.",
+  },
+
+  P0305: {
+    code: "P0305",
+    title: "Cylinder 5 Misfire Detected",
+    meaning:
+      "Cylinder 5 is not firing correctly. The engine computer has detected inconsistent combustion from that cylinder.",
+    severity: "High",
+    causes: [
+      "Faulty ignition coil on cylinder 5",
+      "Old or damaged spark plug",
+      "Fuel injector issue",
+      "Air/fuel mixture problem",
+      "Carbon buildup",
+      "Possible compression issue",
+    ],
+    symptoms: [
+      "Rough running engine",
+      "Shaking at idle",
+      "Loss of acceleration",
+      "Check engine light",
+      "Fuel smell from incomplete combustion",
+    ],
+    fixes: [
+      "Swap cylinder 5 coil with another cylinder",
+      "Replace spark plug",
+      "Check injector spray/function",
+      "Inspect intake system for leaks",
+      "Check compression if the misfire does not move",
+    ],
+    estimatedRepairCost: "$150 - $1000",
+    bmwInsight:
+      "If the check engine light is flashing, avoid driving hard. A severe misfire can damage the catalytic converter.",
+  },
+
+  P0306: {
+    code: "P0306",
+    title: "Cylinder 6 Misfire Detected",
+    meaning:
+      "Cylinder 6 is misfiring. On BMW inline-six engines, this is usually an ignition coil, spark plug, fuel injector, or airflow-related issue.",
+    severity: "High",
+    causes: [
+      "Bad ignition coil on cylinder 6",
+      "Worn spark plug",
+      "Fuel injector fault",
+      "Vacuum leak",
+      "Carbon buildup",
+      "Low compression in cylinder 6",
+    ],
+    symptoms: [
+      "Rough idle",
+      "Engine shaking",
+      "Loss of power",
+      "Check engine light",
+      "Possible limp mode",
+      "Poor fuel economy",
+    ],
+    fixes: [
+      "Swap cylinder 6 ignition coil to another cylinder",
+      "Replace spark plug",
+      "Check injector operation",
+      "Inspect for intake or vacuum leaks",
+      "Run compression/leak-down test if needed",
+    ],
+    estimatedRepairCost: "$150 - $1000",
+    bmwInsight:
+      "Cylinder 6 can be slightly more annoying to access on some BMW engines, but diagnosis is the same: coil swap, plug check, injector check, then compression test.",
+  },
+git status};
