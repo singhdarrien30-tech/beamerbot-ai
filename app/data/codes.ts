@@ -440,5 +440,4 @@ export const faultCodes: Record<string, FaultCodeData> = {
     estimatedRepairCost: "$150 - $1000",
     bmwInsight:
       "Cylinder 6 can be slightly more annoying to access on some BMW engines, but diagnosis is the same: coil swap, plug check, injector check, then compression test.",
-  },
-git status};
+  },};
