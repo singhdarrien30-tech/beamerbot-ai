@@ -105,6 +105,11 @@ export default function Home() {
     setResult(found || null);
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    decodeCode();
+  }
+
   return (
     <main
       style={{
@@ -120,116 +125,121 @@ export default function Home() {
     >
       <div style={{ width: "100%", maxWidth: "760px" }}>
         <h1 style={{ fontSize: "36px", marginBottom: "8px" }}>BeamerBot AI</h1>
+
         <p style={{ color: "#bbb", marginBottom: "24px" }}>
           BMW Fault Code Decoder
         </p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: "12px",
-            marginBottom: "14px",
-          }}
-        >
-          <select
-            value={selectedYear}
-            onChange={(e) => handleYearChange(e.target.value)}
+        <form onSubmit={handleSubmit}>
+          <div
             style={{
-              padding: "12px",
-              background: "#111",
-              color: "white",
-              border: "1px solid #333",
-              borderRadius: "10px",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: "12px",
+              marginBottom: "14px",
             }}
           >
-            <option value="">Select Year</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => handleYearChange(e.target.value)}
+              style={{
+                padding: "12px",
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: "10px",
+              }}
+            >
+              <option value="">Select Year</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
 
-          <select
-            value={selectedTrim}
-            onChange={(e) => handleTrimChange(e.target.value)}
-            disabled={!selectedYear || trims.length === 0}
+            <select
+              value={selectedTrim}
+              onChange={(e) => handleTrimChange(e.target.value)}
+              disabled={!selectedYear || trims.length === 0}
+              style={{
+                padding: "12px",
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: "10px",
+                opacity: selectedYear && trims.length > 0 ? 1 : 0.6,
+              }}
+            >
+              <option value="">
+                {selectedYear && trims.length === 0
+                  ? "No trims added yet"
+                  : "Select Trim"}
+              </option>
+
+              {trims.map((trim) => (
+                <option key={trim} value={trim}>
+                  {trim}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedEngine}
+              onChange={(e) => setSelectedEngine(e.target.value)}
+              disabled={!selectedTrim || engines.length === 0}
+              style={{
+                padding: "12px",
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: "10px",
+                opacity: selectedTrim && engines.length > 0 ? 1 : 0.6,
+              }}
+            >
+              <option value="">
+                {selectedTrim && engines.length === 0
+                  ? "No engines added yet"
+                  : "Select Engine"}
+              </option>
+
+              {engines.map((engine) => (
+                <option key={engine} value={engine}>
+                  {engine}
+                </option>
+              ))}
+            </select>
+
+            <input
+              placeholder="Enter BMW code (ex: P0171)"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              style={{
+                padding: "12px",
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: "10px",
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
             style={{
-              padding: "12px",
-              background: "#111",
-              color: "white",
-              border: "1px solid #333",
+              padding: "12px 18px",
+              background: "#22c55e",
+              color: "black",
+              border: "none",
               borderRadius: "10px",
-              opacity: selectedYear && trims.length > 0 ? 1 : 0.6,
+              fontWeight: "bold",
+              cursor: "pointer",
+              marginBottom: "20px",
             }}
           >
-            <option value="">
-              {selectedYear && trims.length === 0
-                ? "No trims added yet"
-                : "Select Trim"}
-            </option>
-            {trims.map((trim) => (
-              <option key={trim} value={trim}>
-                {trim}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={selectedEngine}
-            onChange={(e) => setSelectedEngine(e.target.value)}
-            disabled={!selectedTrim || engines.length === 0}
-            style={{
-              padding: "12px",
-              background: "#111",
-              color: "white",
-              border: "1px solid #333",
-              borderRadius: "10px",
-              opacity: selectedTrim && engines.length > 0 ? 1 : 0.6,
-            }}
-          >
-            <option value="">
-              {selectedTrim && engines.length === 0
-                ? "No engines added yet"
-                : "Select Engine"}
-            </option>
-            {engines.map((engine) => (
-              <option key={engine} value={engine}>
-                {engine}
-              </option>
-            ))}
-          </select>
-
-          <input
-            placeholder="Enter BMW code (ex: P0171)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            style={{
-              padding: "12px",
-              background: "#111",
-              color: "white",
-              border: "1px solid #333",
-              borderRadius: "10px",
-            }}
-          />
-        </div>
-
-        <button
-          onClick={decodeCode}
-          style={{
-            padding: "12px 18px",
-            background: "#22c55e",
-            color: "black",
-            border: "none",
-            borderRadius: "10px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            marginBottom: "20px",
-          }}
-        >
-          Decode
-        </button>
+            Decode
+          </button>
+        </form>
 
         {result && (
           <div
@@ -241,13 +251,27 @@ export default function Home() {
               border: "1px solid #333",
             }}
           >
-            <div style={{ marginBottom: "14px", color: "#aaa", fontSize: "14px" }}>
+            <div
+              style={{
+                marginBottom: "14px",
+                color: "#aaa",
+                fontSize: "14px",
+              }}
+            >
               <strong>Selected BMW:</strong>{" "}
-              {selectedYear || "—"} / {selectedTrim || "—"} / {selectedEngine || "—"}
+              {selectedYear || "—"} / {selectedTrim || "—"} /{" "}
+              {selectedEngine || "—"}
             </div>
 
             <h2 style={{ color: "#22c55e", marginTop: 0 }}>{result.code}</h2>
-            <p style={{ fontWeight: "bold", fontSize: "22px", marginBottom: "10px" }}>
+
+            <p
+              style={{
+                fontWeight: "bold",
+                fontSize: "22px",
+                marginBottom: "10px",
+              }}
+            >
               {result.title}
             </p>
 
